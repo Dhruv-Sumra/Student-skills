@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os, warnings
 import numpy as np
 import pandas as pd
@@ -1240,7 +1239,6 @@ intuition alone, particularly for consequential academic decisions."
 
 if __name__ == "__main__":
     main()
-=======
 
 
 import os, warnings
@@ -2546,4 +2544,3 @@ count, mean, standard deviation (std), minimum, 25th percentile (Q1), median (50
 
 if __name__ == "__main__":
     main()
->>>>>>> 700b53f03625d9ed4e5bb5024e9777f57f9b804e
