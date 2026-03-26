@@ -468,28 +468,22 @@ button[data-testid="stBaseButton-headerNoPadding"] svg {
 """, unsafe_allow_html=True)
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-SKILL_COLS   = ["Skill1", "Skill2", "Skill3", "Skill4", "Skill5", "Skill6"]
-SUBJECT_COLS = ["Subject1", "Subject2", "Subject3", "Subject4", "Subject5", 
-                "Subject6", "Subject7", "Subject8"]
+SKILL_COLS   = ["Skill1", "Skill2", "Skill3", "Skill4"]
+SUBJECT_COLS = ["Subject1", "Subject2", "Subject3", "Subject4", "Subject5"]
 
 SKILL_NAMES = {
-    "Skill1": "Logical Reasoning",
-    "Skill2": "Analytical Thinking",
-    "Skill3": "Problem Solving",
-    "Skill4": "Creative Thinking",
-    "Skill5": "Communication Skills",
-    "Skill6": "Practical Application"
+    "Skill1": "Logical and Reasoning",
+    "Skill2": "Auditory Working Memory",
+    "Skill3": "Visual Discrimination",
+    "Skill4": "Reading and Writing"
 }
 
 SUBJECT_NAMES = {
-    "Subject1": "Mathematics",
-    "Subject2": "Science",
-    "Subject3": "Technology",
-    "Subject4": "Arts",
-    "Subject5": "Business",
-    "Subject6": "Engineering",
-    "Subject7": "Social Sciences",
-    "Subject8": "Healthcare"
+    "Subject1": "Machine Learning",
+    "Subject2": "Cyber Security",
+    "Subject3": "Block Chain Technology",
+    "Subject4": "Data Science",
+    "Subject5": "Digital Forensics"
 }
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -535,14 +529,12 @@ def generate_sample_data():
     expert_path = os.path.join(BASE, "ExpertSkillMap.csv")
     if not os.path.exists(expert_path):
         expert_data = {
-            "Subject": ["Mathematics", "Science", "Technology", "Arts", "Business", 
-                       "Engineering", "Social Sciences", "Healthcare"],
-            "Skill1": [4, 3, 4, 2, 3, 4, 3, 3],
-            "Skill2": [4, 4, 3, 2, 3, 4, 3, 4],
-            "Skill3": [3, 3, 4, 3, 4, 4, 3, 3],
-            "Skill4": [2, 3, 3, 4, 3, 3, 3, 2],
-            "Skill5": [2, 3, 3, 4, 4, 3, 4, 4],
-            "Skill6": [3, 4, 4, 3, 3, 4, 2, 4]
+            "Subject": ["Machine Learning", "Cyber Security", "Block Chain Technology", 
+                       "Data Science", "Digital Forensics"],
+            "Skill1": [4, 3, 3, 4, 3],  # Logical and Reasoning
+            "Skill2": [3, 3, 2, 3, 4],  # Auditory Working Memory
+            "Skill3": [4, 3, 4, 4, 3],  # Visual Discrimination
+            "Skill4": [3, 2, 2, 3, 3]   # Reading and Writing
         }
         pd.DataFrame(expert_data).to_csv(expert_path, index=False)
 
@@ -601,9 +593,10 @@ def generate_sample_data():
                 skill6 = np.clip(np.random.choice([1, 2, 3, 4], p=[0.1, 0.4, 0.4, 0.1]) + self_assessment_bias, 1, 4)
             students.append({
                 "Student": f"S{i}",
-                "Skill1": int(skill1), "Skill2": int(skill2),
-                "Skill3": int(skill3), "Skill4": int(skill4),
-                "Skill5": int(skill5), "Skill6": int(skill6)
+                "Skill1": int(skill1),
+                "Skill2": int(skill2),
+                "Skill3": int(skill3),
+                "Skill4": int(skill4)
             })
         pd.DataFrame(students).to_csv(cog_path, index=False)
 
@@ -614,20 +607,28 @@ def generate_sample_data():
         subjects = []
         for idx, row in cog_df.iterrows():
             noise_factor = np.random.uniform(0.5, 1.2)
-            math       = int(np.clip((row['Skill1'] + row['Skill2']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
-            science    = int(np.clip((row['Skill2'] + row['Skill3']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
-            tech       = int(np.clip((row['Skill3'] + row['Skill1']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
-            arts       = int(np.clip((row['Skill4'] + row['Skill5']) / 2 * noise_factor + np.random.normal(0, 1.2), 1, 5))
-            business   = int(np.clip((row['Skill5'] + row['Skill3']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
-            engineering= int(np.clip((row['Skill3'] + row['Skill6']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
-            social     = int(np.clip((row['Skill5'] + row['Skill2']) / 2 * noise_factor + np.random.normal(0, 1.2), 1, 5))
-            healthcare = int(np.clip((row['Skill6'] + row['Skill2'] + row['Skill5']) / 3 * noise_factor + np.random.normal(0, 1.0), 1, 5))
+            # Machine Learning - correlates with Logical + Visual (with noise)
+            ml = int(np.clip((row['Skill1'] + row['Skill3']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
+            
+            # Cyber Security - correlates with Logical + Auditory (with noise)
+            cyber = int(np.clip((row['Skill1'] + row['Skill2']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
+            
+            # Block Chain - correlates with Logical + Reading (with noise)
+            blockchain = int(np.clip((row['Skill1'] + row['Skill4']) / 2 * noise_factor + np.random.normal(0, 1.2), 1, 5))
+            
+            # Data Science - correlates with Logical + Visual + Reading (with noise)
+            datascience = int(np.clip((row['Skill1'] + row['Skill3'] + row['Skill4']) / 3 * noise_factor + np.random.normal(0, 1.0), 1, 5))
+            
+            # Digital Forensics - correlates with Auditory + Visual (with noise)
+            forensics = int(np.clip((row['Skill2'] + row['Skill3']) / 2 * noise_factor + np.random.normal(0, 1.0), 1, 5))
+            
             subjects.append({
                 "Student": row['Student'],
-                "Subject1": math,    "Subject2": science,
-                "Subject3": tech,    "Subject4": arts,
-                "Subject5": business,"Subject6": engineering,
-                "Subject7": social,  "Subject8": healthcare
+                "Subject1": ml,
+                "Subject2": cyber,
+                "Subject3": blockchain,
+                "Subject4": datascience,
+                "Subject5": forensics
             })
         pd.DataFrame(subjects).to_csv(sub_path, index=False)
 
@@ -726,7 +727,7 @@ def train_models():
 def plot_skill_distribution(df):
     available_skills = [col for col in SKILL_COLS if col in df.columns]
     if not available_skills: return None
-    fig, axes = plt.subplots(2, 3, figsize=(18, 11))
+    fig, axes = plt.subplots(2, 2, figsize=(15, 11))
     axes = axes.flatten()
     skill_labels = {1: 'Weak', 2: 'Developing', 3: 'Proficient', 4: 'Expert'}
     for i, skill in enumerate(available_skills):
@@ -759,7 +760,7 @@ def plot_skill_distribution(df):
 def plot_subject_distribution(df):
     available_subjects = [col for col in SUBJECT_COLS if col in df.columns]
     if not available_subjects: return None
-    fig, axes = plt.subplots(2, 4, figsize=(20, 10))
+    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
     axes = axes.flatten()
     subject_labels = {1: 'Beginner', 2: 'Elementary', 3: 'Intermediate', 4: 'Advanced', 5: 'Expert'}
     for i, subj in enumerate(available_subjects):
@@ -923,7 +924,7 @@ def main():
         "🏠 Problem Statement",
         "📊 Dataset Overview",
         "📈 Exploratory Analysis",
-        "🔧 Feature Engineering",
+        "🔧 Feature Creation",
         "🎯 Model Performance",
         "🔮 Get Recommendation"
     ])
@@ -1074,8 +1075,8 @@ intuition alone, particularly for consequential academic decisions."
         st.dataframe(df[avail].describe().round(3), use_container_width=True)
         st.markdown("<hr class='gold-rule'>", unsafe_allow_html=True)
 
-    elif page == "🔧 Feature Engineering":
-        st.markdown("<div class='section-title'>Feature Engineering</div>", unsafe_allow_html=True)
+    elif page == "🔧 Feature Creation":
+        st.markdown("<div class='section-title'>Feature Creation</div>", unsafe_allow_html=True)
         st.markdown("Raw ratings are the foundation, but derived features expose deeper patterns and improve model accuracy.")
         st.markdown("<hr class='gold-rule'>", unsafe_allow_html=True)
         col1, col2 = st.columns(2, gap="large")
@@ -1101,7 +1102,7 @@ intuition alone, particularly for consequential academic decisions."
             st.markdown("<div class='sub-title'>Composite Feature</div>", unsafe_allow_html=True)
             st.markdown("""<div class='callout'><strong>Overall Score</strong><br><span style='font-style:normal;font-size:0.93rem;'>Weighted blend: <em>60% average skill + 40% average subject knowledge.</em></span></div>""", unsafe_allow_html=True)
         st.markdown("<hr class='gold-rule'>", unsafe_allow_html=True)
-        st.markdown("<div class='sub-title'>Sample Profiles with Engineered Features</div>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-title'>Sample Profiles with Created Features</div>", unsafe_allow_html=True)
         show_cols = ['Student'] + [c for c in ['avg_skill','strongest_skill','skill_range','avg_subject','best_subject','overall_score','Target'] if c in df.columns]
         if len(show_cols) > 1:
             sample = df[show_cols].head(8).rename(columns={
@@ -1159,27 +1160,22 @@ intuition alone, particularly for consequential academic decisions."
         col1, col2 = st.columns(2, gap="large")
         with col1:
             st.markdown("<div class='sub-title'>🧠 Cognitive Skills (1=Low, 4=High)</div>", unsafe_allow_html=True)
-            skill1 = st.slider("💡 Logical Reasoning", 1, 4, 2, help="Puzzles, sequential thinking, if-then logic")
-            skill2 = st.slider("🔍 Analytical Thinking", 1, 4, 2, help="Pattern recognition, breaking problems into parts")
-            skill3 = st.slider("🎯 Problem Solving", 1, 4, 2, help="Finding solutions to novel, complex challenges")
-            skill4 = st.slider("🎨 Creative Thinking", 1, 4, 2, help="Generating original ideas, lateral thinking")
-            skill5 = st.slider("💬 Communication Skills", 1, 4, 2, help="Expressing ideas clearly, teamwork, presentation")
-            skill6 = st.slider("🔧 Practical Application", 1, 4, 2, help="Hands-on work, applying theory to practice")
-        with col2:
-            st.markdown("<div class='sub-title'>📚 Subject Knowledge (1=Beginner, 5=Expert)</div>", unsafe_allow_html=True)
-            subj1 = st.slider("📐 Mathematics", 1, 5, 3)
-            subj2 = st.slider("🔬 Science", 1, 5, 3)
-            subj3 = st.slider("💻 Technology", 1, 5, 3)
-            subj4 = st.slider("🎭 Arts", 1, 5, 3)
-            subj5 = st.slider("💼 Business", 1, 5, 3)
-            subj6 = st.slider("⚙️ Engineering", 1, 5, 3)
-            subj7 = st.slider("🌍 Social Sciences", 1, 5, 3)
-            subj8 = st.slider("🏥 Healthcare", 1, 5, 3)
-        st.markdown("<br>", unsafe_allow_html=True)
+            skill1 = st.slider("💡 Logical and Reasoning", 1, 4, 2, help="Puzzles, sequential thinking, if-then logic")
+            skill2 = st.slider("🔊 Auditory Working Memory", 1, 4, 2, help="Pattern recognition, breaking problems into parts")
+            skill3 = st.slider("👁️ Visual Discrimination", 1, 4, 2, help="Finding solutions to novel, complex challenges")
+            skill4 = st.slider("📖 Reading and Writing", 1, 4, 2, help="Generating original ideas, lateral thinking")
+            with col2:
+                st.markdown("<div class='sub-title'>📚 Subject Knowledge (1=Beginner, 5=Expert)</div>", unsafe_allow_html=True)
+            subj1 = st.slider("🤖 Machine Learning", 1, 5, 3)
+            subj2 = st.slider("🔒 Cyber Security", 1, 5, 3)
+            subj3 = st.slider("⛓️ Block Chain Technology", 1, 5, 3)
+            subj4 = st.slider("📊 Data Science", 1, 5, 3)
+            subj5 = st.slider("🔍 Digital Forensics", 1, 5, 3)
+            st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🚀 Generate Recommendation", type="primary"):
             try:
-                all_skills   = [skill1, skill2, skill3, skill4, skill5, skill6]
-                all_subjects = [subj1, subj2, subj3, subj4, subj5, subj6, subj7, subj8]
+                all_skills   = [skill1, skill2, skill3, skill4]
+                all_subjects = [subj1, subj2, subj3, subj4, subj5]
                 features = np.array(
                     all_skills + all_subjects + [
                         np.mean(all_skills), np.sum(all_skills),
@@ -1215,10 +1211,19 @@ intuition alone, particularly for consequential academic decisions."
                 st.pyplot(fig, use_container_width=True); plt.close()
                 st.markdown("<hr class='gold-rule'>", unsafe_allow_html=True)
                 st.markdown("<div class='sub-title'>Your Cognitive Profile</div>", unsafe_allow_html=True)
-                sk_d = {'Logical Reasoning': skill1, 'Analytical Thinking': skill2, 'Problem Solving': skill3,
-                        'Creative Thinking': skill4, 'Communication': skill5, 'Practical Application': skill6}
-                su_d = {'Mathematics': subj1, 'Science': subj2, 'Technology': subj3, 'Arts': subj4,
-                        'Business': subj5, 'Engineering': subj6, 'Social Sciences': subj7, 'Healthcare': subj8}
+                sk_d = {
+                    'Logical and Reasoning': skill1,
+                    'Auditory Working Memory': skill2,
+                    'Visual Discrimination': skill3,
+                    'Reading and Writing': skill4
+                }
+                su_d = {
+                    'Machine Learning': subj1,
+                    'Cyber Security': subj2,
+                    'Block Chain Technology': subj3,
+                    'Data Science': subj4,
+                    'Digital Forensics': subj5
+                }
                 top_sk = sorted(sk_d.items(), key=lambda x: x[1], reverse=True)
                 top_su = sorted(su_d.items(), key=lambda x: x[1], reverse=True)
                 c1, c2 = st.columns(2)
@@ -1237,425 +1242,173 @@ intuition alone, particularly for consequential academic decisions."
             except Exception as e:
                 st.error(f"Prediction error: {e}")
 
+        
+        # ═══════════════════════════════════════════════════════════════════
+        # ALL STUDENTS DATABASE SECTION
+        # ═══════════════════════════════════════════════════════════════════
+        st.markdown("<hr class='gold-rule'>", unsafe_allow_html=True)
+        st.markdown("<div class='section-title'>📊 All Students Recommendations Database</div>", unsafe_allow_html=True)
+        st.markdown("View all 2000 students with their recommended courses and the reasoning behind each recommendation.")
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Create display dataframe
+        display_df = df.copy()
+        
+        # Rename columns for better readability
+        column_mapping = {
+            'Student': 'Student ID',
+            'Target': 'Recommended Course',
+            'avg_skill': 'Avg Skill',
+            'avg_subject': 'Avg Subject',
+            'overall_score': 'Overall Score',
+            'strongest_skill': 'Strongest Skill',
+            'best_subject': 'Best Subject'
+        }
+        
+        # Add skill names
+        for skill_col in SKILL_COLS:
+            if skill_col in display_df.columns:
+                skill_name = SKILL_NAMES.get(skill_col, skill_col)
+                column_mapping[skill_col] = skill_name
+        
+        # Add subject names
+        for subj_col in SUBJECT_COLS:
+            if subj_col in display_df.columns:
+                subj_name = SUBJECT_NAMES.get(subj_col, subj_col)
+                column_mapping[subj_col] = subj_name
+        
+        # Rename columns
+        display_df = display_df.rename(columns=column_mapping)
+        
+        # Add reasoning column
+        def create_reasoning(row):
+            strongest = row.get('Strongest Skill', 'N/A')
+            best_subj = row.get('Best Subject', 'N/A')
+            avg_skill = row.get('Avg Skill', 0)
+            avg_subj = row.get('Avg Subject', 0)
+            
+            # Map to readable names
+            for old_col, new_name in column_mapping.items():
+                if strongest == old_col:
+                    strongest = new_name
+                if best_subj == old_col:
+                    best_subj = new_name
+            
+            return f"Strong in {strongest} (Avg: {avg_skill:.1f}), Excels at {best_subj} (Avg: {avg_subj:.1f})"
+        
+        display_df['Recommendation Reasoning'] = display_df.apply(create_reasoning, axis=1)
+        
+        # Show key statistics
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("📚 Total Students", f"{len(display_df):,}")
+        with col2:
+            most_recommended = display_df['Recommended Course'].value_counts().index[0]
+            count = display_df['Recommended Course'].value_counts().values[0]
+            st.metric("🏆 Most Recommended", most_recommended, f"{count} students")
+        with col3:
+            if 'Overall Score' in display_df.columns:
+                avg_overall = display_df['Overall Score'].mean()
+                st.metric("📊 Avg Overall Score", f"{avg_overall:.2f}")
+        with col4:
+            unique_courses = display_df['Recommended Course'].nunique()
+            st.metric("🎓 Unique Courses", unique_courses)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Filter and search options
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            course_filter = st.multiselect(
+                "🔍 Filter by Recommended Course",
+                options=sorted(display_df['Recommended Course'].unique()),
+                default=[]
+            )
+        with col2:
+            search_student = st.text_input("🔎 Search Student ID", placeholder="e.g., S1, S100, S2000")
+        with col3:
+            if 'Overall Score' in display_df.columns:
+                score_range = st.slider(
+                    "📈 Filter by Overall Score",
+                    min_value=float(display_df['Overall Score'].min()),
+                    max_value=float(display_df['Overall Score'].max()),
+                    value=(float(display_df['Overall Score'].min()),
+                           float(display_df['Overall Score'].max()))
+                )
+        
+        # Apply filters
+        filtered_df = display_df.copy()
+        if course_filter:
+            filtered_df = filtered_df[filtered_df['Recommended Course'].isin(course_filter)]
+        if search_student:
+            filtered_df = filtered_df[filtered_df['Student ID'].str.contains(search_student, case=False, na=False)]
+        if 'Overall Score' in filtered_df.columns and 'score_range' in locals():
+            filtered_df = filtered_df[(filtered_df['Overall Score'] >= score_range[0]) & 
+                                     (filtered_df['Overall Score'] <= score_range[1])]
+        
+        st.markdown(f"**Showing {len(filtered_df):,} of {len(display_df):,} students**")
+        
+        # Select columns to display
+        display_columns = ['Student ID', 'Recommended Course', 'Recommendation Reasoning']
+        if 'Overall Score' in filtered_df.columns:
+            display_columns.append('Overall Score')
+        if 'Avg Skill' in filtered_df.columns:
+            display_columns.append('Avg Skill')
+        if 'Avg Subject' in filtered_df.columns:
+            display_columns.append('Avg Subject')
+        
+        # Add skill columns
+        for skill_name in SKILL_NAMES.values():
+            if skill_name in filtered_df.columns:
+                display_columns.append(skill_name)
+        
+        # Add subject columns
+        for subj_name in SUBJECT_NAMES.values():
+            if subj_name in filtered_df.columns:
+                display_columns.append(subj_name)
+        
+        # Display the dataframe
+        st.dataframe(
+            filtered_df[display_columns],
+            use_container_width=True,
+            height=500,
+            hide_index=True
+        )
+        
+        # Download button
+        csv = filtered_df[display_columns].to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download Student Data as CSV",
+            data=csv,
+            file_name=f"student_recommendations_{len(filtered_df)}_students.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+        
+        # Course distribution summary
+        st.markdown("<hr class='gold-rule'>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-title'>📈 Course Distribution Summary</div>", unsafe_allow_html=True)
+        
+        course_dist = filtered_df['Recommended Course'].value_counts().reset_index()
+        course_dist.columns = ['Course', 'Number of Students']
+        course_dist['Percentage'] = (course_dist['Number of Students'] / len(filtered_df) * 100).round(1)
+        course_dist['Percentage Display'] = course_dist['Percentage'].apply(lambda x: f"{x}%")
+        
+        col1, col2 = st.columns([3, 2])
+        with col1:
+            st.dataframe(
+                course_dist[['Course', 'Number of Students', 'Percentage Display']],
+                use_container_width=True,
+                hide_index=True
+            )
+        with col2:
+            st.markdown("**📊 Top 3 Courses:**")
+            for idx, row in course_dist.head(3).iterrows():
+                st.markdown(f"**{idx+1}.** {row['Course']}")
+                st.markdown(f"   └─ {row['Number of Students']} students ({row['Percentage']}%)")
+                st.markdown("")
+
 if __name__ == "__main__":
     main()
 
 
-import os, warnings
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import seaborn as sns
-import pickle
-import streamlit as st
-warnings.filterwarnings("ignore")
-
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-
-# ── Page Config ────────────────────────────────────────────────────────────────
-st.set_page_config(
-    page_title="SkillRec · Student Recommendation",
-    page_icon="🎓",
-    layout="wide"
-)
-
-# ── Global CSS ─────────────────────────────────────────────────────────────────
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&display=swap');
-
-/* ── Variables ── */
-:root {
-    --ink:      #0a0e1a;
-    --navy:     #112244;
-    --navy-mid: #1a3566;
-    --crimson:  #9b1d2a;
-    --gold:     #c9841a;
-    --gold-lt:  #e8a830;
-    --teal:     #1a6b72;
-    --sage:     #2d6a4f;
-    --paper:    #f7f3ec;
-    --card:     #ffffff;
-    --border:   #c8bfa8;
-    --muted:    #5c5446;
-    --rule:     #b0a080;
-}
-
-html, body, [class*="css"] {
-    font-family: "Times New Roman", "Georgia", Times, serif !important;
-    background-color: var(--paper) !important;
-    color: var(--ink) !important;
-}
-
-#MainMenu, footer, header { visibility: hidden; }
-
-.main .block-container {
-    padding: 2rem 3rem 5rem 3rem !important;
-    max-width: 1260px;
-}
-
-/* ── Masthead ── */
-.masthead {
-    background: var(--navy);
-    padding: 2rem 2.5rem 1.6rem;
-    margin-bottom: 2.5rem;
-    border-left: 6px solid var(--gold);
-    position: relative;
-}
-.masthead-rule {
-    height: 2px;
-    background: linear-gradient(90deg, var(--gold), var(--gold-lt) 40%, transparent);
-    margin: 1.2rem 0 0 0;
-}
-.masthead .kicker {
-    font-size: 0.72rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold-lt);
-    margin-bottom: 0.5rem;
-}
-.masthead h1 {
-    font-family: "Playfair Display", "Times New Roman", serif !important;
-    font-size: 2.2rem !important;
-    font-weight: 900 !important;
-    color: #ffffff !important;
-    margin: 0 0 0.3rem 0 !important;
-    line-height: 1.2;
-}
-.masthead .tagline {
-    font-style: italic;
-    color: #c8d4e8 !important;
-    font-size: 1rem;
-    margin: 0 !important;
-}
-
-/* ── Section & sub headings ── */
-.section-title {
-    font-family: "Playfair Display", "Times New Roman", serif !important;
-    font-size: 1.65rem;
-    font-weight: 700;
-    color: var(--navy);
-    border-bottom: 3px solid var(--gold);
-    padding-bottom: 0.45rem;
-    margin: 1.5rem 0 1.2rem 0;
-}
-.sub-title {
-    font-family: "Times New Roman", Times, serif !important;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--navy-mid);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin: 1.4rem 0 0.55rem 0;
-    padding-bottom: 0.2rem;
-    border-bottom: 1px solid var(--border);
-}
-
-/* ── Chart label strip — sits above each chart ── */
-.chart-label {
-    background: var(--navy);
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 0;
-    border-left: 4px solid var(--gold);
-}
-
-/* ── Sidebar ── */
-section[data-testid="stSidebar"] {
-    background: var(--ink) !important;
-    border-right: 4px solid var(--gold) !important;
-}
-section[data-testid="stSidebar"] * {
-    color: #e8e2d4 !important;
-    font-family: "Times New Roman", Times, serif !important;
-}
-section[data-testid="stSidebar"] h2 {
-    font-size: 0.75rem !important;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--gold-lt) !important;
-    border-bottom: 1px solid #3a3020;
-    padding-bottom: 0.4rem;
-    margin-bottom: 0.9rem !important;
-}
-section[data-testid="stSidebar"] hr {
-    border-color: #3a3020 !important;
-}
-section[data-testid="stSidebar"] .stRadio label {
-    font-size: 0.93rem !important;
-}
-section[data-testid="stSidebar"] [data-testid="stRadio"] > div > label {
-    padding: 0.3rem 0.2rem !important;
-}
-
-/* ── Sidebar model badge ── */
-.model-badge {
-    background: var(--gold);
-    color: var(--ink);
-    padding: 1rem;
-    text-align: center;
-    margin-top: 0.8rem;
-}
-.model-badge .badge-acc {
-    font-size: 2rem;
-    font-weight: 900;
-    display: block;
-    line-height: 1.1;
-}
-.model-badge .badge-lbl {
-    font-size: 0.68rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    display: block;
-    margin-top: 0.15rem;
-}
-
-/* ── Metric cards ── */
-[data-testid="metric-container"] {
-    background: var(--card) !important;
-    border: 1px solid var(--border) !important;
-    border-top: 4px solid var(--navy) !important;
-    border-radius: 0 !important;
-    padding: 1rem 1.2rem !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-}
-[data-testid="metric-container"] label {
-    font-size: 0.73rem !important;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--muted) !important;
-}
-[data-testid="metric-container"] [data-testid="stMetricValue"] {
-    font-size: 2.1rem !important;
-    font-weight: 700 !important;
-    color: var(--navy) !important;
-}
-
-/* ── Tabs ── */
-.stTabs [data-baseweb="tab-list"] {
-    border-bottom: 3px solid var(--navy) !important;
-    gap: 0 !important;
-}
-.stTabs [data-baseweb="tab"] {
-    background: #ede8de !important;
-    border: 1px solid var(--border) !important;
-    border-bottom: none !important;
-    border-radius: 0 !important;
-    padding: 0.45rem 1.3rem !important;
-    font-family: "Times New Roman", Times, serif !important;
-    font-size: 0.87rem !important;
-    letter-spacing: 0.04em;
-    color: var(--muted) !important;
-    margin-right: 3px;
-}
-.stTabs [aria-selected="true"] {
-    background: var(--navy) !important;
-    color: #ffffff !important;
-    border-color: var(--navy) !important;
-}
-
-/* ── Dataframe ── */
-.stDataFrame thead th {
-    background: var(--navy) !important;
-    color: #ffffff !important;
-    font-family: "Times New Roman", Times, serif !important;
-    font-size: 0.82rem !important;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-/* ── Alerts ── */
-.stAlert {
-    border-radius: 0 !important;
-    font-family: "Times New Roman", Times, serif !important;
-}
-
-/* ── Sliders ── */
-.stSlider label {
-    font-family: "Times New Roman", Times, serif !important;
-    font-size: 0.92rem !important;
-    color: var(--ink) !important;
-}
-
-/* ── Buttons ── */
-.stButton button[kind="primary"] {
-    background: var(--navy) !important;
-    color: #ffffff !important;
-    border: 2px solid var(--gold) !important;
-    border-radius: 0 !important;
-    font-family: "Times New Roman", Times, serif !important;
-    font-size: 0.95rem !important;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.6rem 2.5rem !important;
-    transition: all 0.2s;
-}
-.stButton button[kind="primary"]:hover {
-    background: var(--gold) !important;
-    color: var(--ink) !important;
-}
-.stButton button {
-    border-radius: 0 !important;
-    font-family: "Times New Roman", Times, serif !important;
-}
-
-/* ── Callout / pull-quote ── */
-.callout {
-    border-left: 4px solid var(--gold);
-    background: #f0ebe0;
-    padding: 0.9rem 1.3rem;
-    font-style: italic;
-    font-size: 0.97rem;
-    color: var(--ink);
-    margin: 0.9rem 0;
-}
-.callout b, .callout strong { font-style: normal; color: var(--navy); }
-
-/* ── Gold rule ── */
-.gold-rule {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: 1.6rem 0;
-}
-
-/* ── Explanation expander (only for chart explanations) ── */
-.streamlit-expanderHeader {
-    background: #eee8da !important;
-    border: 1px solid var(--border) !important;
-    border-left: 4px solid var(--teal) !important;
-    border-radius: 0 !important;
-    font-family: "Times New Roman", Times, serif !important;
-    font-size: 0.88rem !important;
-    font-weight: 700 !important;
-    color: var(--teal) !important;
-    letter-spacing: 0.04em;
-    padding: 0.55rem 1rem !important;
-    text-transform: uppercase;
-}
-.streamlit-expanderContent {
-    border: 1px solid var(--border) !important;
-    border-top: none !important;
-    border-left: 4px solid var(--teal) !important;
-    border-radius: 0 !important;
-    background: var(--card) !important;
-    padding: 1rem 1.3rem !important;
-    font-size: 0.95rem;
-    line-height: 1.7;
-}
-
-/* ── Result prediction card ── */
-.result-card {
-    background: var(--navy);
-    border-left: 6px solid var(--gold);
-    padding: 2.4rem 2rem;
-    text-align: center;
-    margin: 1.5rem 0;
-}
-.result-card .rc-kicker {
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--gold-lt);
-    margin-bottom: 0.6rem;
-}
-.result-card h1 {
-    font-family: "Playfair Display", "Times New Roman", serif !important;
-    font-size: 3rem !important;
-    color: #ffffff !important;
-    margin: 0 0 0.2rem 0 !important;
-    font-weight: 900 !important;
-}
-.result-card .rc-sub {
-    font-style: italic;
-    color: #c8d4e8;
-    font-size: 1.05rem;
-    margin-bottom: 1.2rem;
-}
-.result-card .rc-conf {
-    font-size: 1.2rem;
-    color: var(--gold-lt);
-    border-top: 1px solid #2a4070;
-    padding-top: 1rem;
-    margin-top: 0.5rem;
-}
-
-/* ── Strength rows ── */
-.str-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px dashed #d8d0c0;
-    font-size: 0.93rem;
-}
-.str-pill {
-    background: var(--navy);
-    color: #ffffff;
-    padding: 0.18rem 0.6rem;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ── Constants ──────────────────────────────────────────────────────────────────
-SKILL_COLS   = ["Skill1", "Skill2", "Skill3", "Skill4"]
-SUBJECT_COLS = ["Subject1", "Subject2", "Subject3", "Subject4", "Subject5"]
-
-SKILL_NAMES = {
-    "Skill1": "Logical Reasoning",
-    "Skill2": "Analytical Thinking",
-    "Skill3": "Problem Solving",
-    "Skill4": "Creative Thinking"
-}
-SUBJECT_NAMES = {
-    "Subject1": "Mathematics",
-    "Subject2": "Science",
-    "Subject3": "Technology",
-    "Subject4": "Arts",
-    "Subject5": "Business"
-}
-
-BASE = os.path.dirname(os.path.abspath(__file__))
-
-# ── Chart color palette ────────────────────────────────────────────────────────
-# High-contrast, distinct colours for charts
-C_NAVY    = "#112244"
-C_CRIMSON = "#9b1d2a"
-C_TEAL    = "#1a6b72"
-C_AMBER   = "#c9841a"
-C_SAGE    = "#2d6a4f"
-C_VIOLET  = "#5a3472"
-C_PAPER   = "#ffffff"      # pure white chart bg for max contrast
-
-CHART_PALETTE = [C_NAVY, C_CRIMSON, C_TEAL, C_AMBER, C_SAGE, C_VIOLET]
-
-def apply_chart_style(ax, title="", xlabel="", ylabel=""):
-    """Clean white background, minimal grid, serif labels"""
-    ax.set_facecolor(C_PAPER)
-    ax.figure.patch.set_facecolor("#f7f3ec")
-    for spine in ax.spines.values():
-        spine.set_color("#9a8e7a"); spine.set_linewidth(0.7)
-    ax.tick_params(colors="#0a0e1a", labelsize=9)
-    ax.xaxis.label.set_color("#2a2010")
-    ax.yaxis.label.set_color("#2a2010")
-    if title:
-        ax.set_title(title, fontsize=11, fontweight='bold', color=C_NAVY,
-                     pad=10, fontfamily='serif')
-    if xlabel: ax.set_xlabel(xlabel, fontsize=9, fontfamily='serif')
-    if ylabel: ax.set_ylabel(ylabel, fontsize=9, fontfamily='serif')
-    ax.grid(axis='y', color="#ddd8cc", linestyle='--', alpha=0.55, linewidth=0.55)
-    ax.set_axisbelow(True)
